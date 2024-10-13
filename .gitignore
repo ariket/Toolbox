@@ -1,0 +1,14 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!crypto.py
+!hashcrack.py
+!scan.py
+!sshcrack.py
+!main.py
+!setup.py
+!*.key
+!*.txt
+!*.encrypted
