@@ -79,27 +79,24 @@ def generate_key(crypto_key_file):
     )
     # Password to derive the key from
     password = b'my_secret_password'    # Replace this with a dynamic password input if needed
-    # Deriving the key
-    key = kdf.derive(password)
+    key = kdf.derive(password)          # Deriving the key
     encoded_key = urlsafe_b64encode(key)
-    # Save the key to a file
-    with open(crypto_key_file, 'wb') as key_file:
+
+    with open(crypto_key_file, 'wb') as key_file:                 # Save the key to a file
         key_file.write(encoded_key)
     print(f"Key generated and saved to '\033[96m{os.path.abspath(crypto_key_file)}\033[0m'.")
 
 
 def main_crypto_tool():
-    """Main function to handle command-line arguments"""
+    """Main function to handle commandline arguments"""
     parser = argparse.ArgumentParser(description="Encrypt or decrypt a file using"
-                                       " a symmetric key or generate a cryptokey.")
+                                       " a symmetric key or generate a symmetric cryptokey.")
     group = parser.add_mutually_exclusive_group(required=True)
 
-    # Define arguments for encrypting and decrypting
+    # Define arguments
     parser.add_argument(
         '-key',
         default=CRYPTO_KEY,
-        #nargs="?",
-        #action="store_true" if ,
         help="The path to the key file(default key: crypto_key.key)."
     )
     group.add_argument(
@@ -141,7 +138,7 @@ def main_crypto_tool():
     else:
         if args.file:
             print(f"{os.path.basename(__file__)}: error: '{args.file}' "
-                   "file not allowed with option 'keygen'")
+                   "file not allowed with option '-keygen'")
         else:
             generate_key(args.key)
 

@@ -58,7 +58,7 @@ def hash_crack(wordlist, algorithm_input, hash_input):
 
 
 def main_hashcracker():
-    """Main function to handle command-line arguments"""
+    """Main hashcracker function to handle commandline arguments"""
     parser = argparse.ArgumentParser(description="Crack a non salted hash.")
 
     # Define arguments for encrypting and decrypting

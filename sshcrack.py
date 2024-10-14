@@ -37,6 +37,7 @@ def ssh_connect(target_ip, username, password, code=0):
     ssh.close()
     return code
 
+
 def ssh_crack(password_file, username, target_ip):
     """Try to crack password for user on SSH server"""
     print(f"SSH cracker started for user '{username}' on server '{target_ip}'.")
@@ -59,8 +60,9 @@ def ssh_crack(password_file, username, target_ip):
         sys.exit(1)
     print(f"No matching password found for '{username}' on server '{target_ip}'.")
 
+
 def main_sshcracker():
-    """Main function to handle commandline arguments"""
+    """Main ssh crack function to handle commandline arguments"""
     parser = argparse.ArgumentParser(description="Crack a ssh login password.")
 
     # Define arguments for encrypting and decrypting
@@ -86,11 +88,11 @@ def main_sshcracker():
     elif not scan.ip_address_validator(args.ip):
         print(f"File {os.path.basename(__file__)}: error: IP '{args.ip}' doesn't exist")
     else:
-        # Perform usercrack
         if ssh_check(args.ip):
             ssh_crack(args.file, args.user, args.ip)
         else:
             pass  #Exit
+
 
 if __name__ == "__main__":
     main_sshcracker()

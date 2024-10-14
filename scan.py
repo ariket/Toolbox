@@ -208,7 +208,7 @@ def run_nmap(nmap_options):
 
 
 def main_scan():
-    """Main scan function"""
+    """Main scan function that handles commandline arguments"""
     parser = argparse.ArgumentParser(description="Scan Ip addresses with Nmap.")
     group = parser.add_mutually_exclusive_group(required=True)
     # Define arguments
@@ -226,7 +226,6 @@ def main_scan():
     )
     parser.add_argument(
         'action',
-        #nargs=1,
         choices=['ping', 'port'],
         help="Specify whether to 'ping' or to get 'port' data from an IP."
     )

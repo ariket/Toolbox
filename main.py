@@ -49,9 +49,9 @@ def main_scan():
         else:
             print(f"Invalid command: '{main_input}'.")
 
+
 def main_crypto():
     """Main crypto function"""
-
     def new_key():
         if os.path.exists(CRYPTO_KEY):
             print("Are you sure you want to generate a new key in file", end =" ")
@@ -112,9 +112,9 @@ def main_crypto():
         else:
             print(f"Invalid command: '{main_input}'.")
 
+
 def main_hashcrack():
     """Main hashcrack function"""
-
     def main_menu():
         print("*****************Hash cracking tool********************")
         print("*  1 - Crack a hash                                   *")
@@ -153,7 +153,6 @@ def main_hashcrack():
 
 def main_sshcrack():
     """Main SSHcrack function"""
-
     def main_menu():
         print("*****************SSH password cracking tool************")
         print("*  1 - Crack a SSH username                           *")
@@ -203,8 +202,7 @@ def main_sshcrack():
 
 
 def main():
-    """Main menu"""
-
+    """Main menu function"""
     def main_menu():
         print("******************Toolbox******************************")
         print("*  1 - Cryptography                                   *")
