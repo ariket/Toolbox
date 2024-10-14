@@ -4,8 +4,8 @@
 # Some testing done in Linux environment, seems to work ok.
 # Author: Ari Ketola
 
-import os
 #import subprocess
+import os
 import ipaddress
 import crypto
 import scan

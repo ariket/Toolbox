@@ -8,7 +8,6 @@ import os
 import ipaddress
 import nmap
 
-
 def ip_address_validator(ip):
     """ Check if legal IP address """
     try:
