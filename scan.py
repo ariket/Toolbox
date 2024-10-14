@@ -8,7 +8,6 @@ import os
 import ipaddress
 import nmap
 
-exit_command = {"9", "x", "X", "z", "Z", "q", "Q"}
 
 def ip_address_validator(ip):
     """ Check if legal IP address """
@@ -82,52 +81,20 @@ def create_file():
         if new_file == "":
             print("You must specify a new non existing filename.")
         elif not os.path.exists(new_file):
-            with open(new_file, 'x', encoding='utf-8') as file:
-                print(f"File created: {file}.")
-            return new_file
+            try:
+                with open(new_file, 'x', encoding='utf-8'):
+                    print(f"File created: {new_file}.")
+                return new_file
+            except PermissionError:
+                print(f"Permission denied to path: '{new_file}'")
         else:
             print(f"{new_file} already exists.")
             print("You must specify a new non existing filename.")
 
 
-def save_to_file(save_scan_to_file, ip_address_file):
-    """Save to file"""
-    if save_scan_to_file == "not save":  #Script called from commandline without "save to file" flag
-        save_scan_to_file = None
-    elif save_scan_to_file:              #Script called from commandline with flag "save to file"
-        try:
-            with open(save_scan_to_file, 'x', encoding='utf-8'):
-                pass
-        except:
-            pass    #File already exist, no new file created
-    else:                               #Script called from main menu
-        while True:
-            print(f"1. Do want to save the scan to an existing file in {os.getcwd()}.")
-            print("2. Do you want to save the scan to a new file.")
-            print("3. Not save to file")
-            command = input(">>> ").lower()
-            if command == "1":
-                save_scan_to_file = select_file()
-                if save_scan_to_file != ip_address_file:
-                    break
-                print(f"Can not use '{ip_address_file}' to save the scan.")
-                command = "File is already in use to read IP data."
-                #print("Do you really want to save scan to file? (Y/N)")
-                if not save_scan_to_file:
-                    save_scan_to_file = create_file()
-                    break
-            elif command == "2":
-                save_scan_to_file = create_file()
-                break
-            elif command == "3":
-                break
-            print(f"Invalid command: '{command}'.")
-    return save_scan_to_file
-
-
 def nmap_start(ip_address, save_scan_to_file, nmap_options):
     """Nmap scan starter"""
-    target = str(ip_address) #ip_address, test IP: "45.33.32.156"
+    target = str(ip_address)    #ip_address, test IP: "45.33.32.156"
     print(f"Scanning {target.rstrip(chr(10))}.....Standby")
     scanner = nmap.PortScanner()
     scanner.scan(target, arguments=nmap_options)
@@ -144,6 +111,8 @@ def nmap_start(ip_address, save_scan_to_file, nmap_options):
                 printdata += f"Port: {port}, State: {scanner[host][proto][port]['state']}, "
                 printdata += f"Name: {scanner[host][proto][port] ['name']}, Version: "
                 printdata += f"{scanner[host][proto][port]['version']}\n"
+    if printdata == "":
+        print(f"     {target} not responding")
     printdata += '--------------------------------------------------------'
     if save_scan_to_file:
         with open(save_scan_to_file, "a", encoding='utf-8') as file_save:
@@ -153,7 +122,7 @@ def nmap_start(ip_address, save_scan_to_file, nmap_options):
 
 def nmap_scan(save_scan_to_file, nmap_options, ip_address_file, ip_address):
     """Nmap Scan"""
-    save_scan_to_file = save_to_file(save_scan_to_file, ip_address_file)
+    print(f"save to filen input: {save_scan_to_file}") #Test purpose
 
     print('--------------------------------------------------------')
     print('|                Nmap scan starts                      |')
@@ -168,43 +137,6 @@ def nmap_scan(save_scan_to_file, nmap_options, ip_address_file, ip_address):
                 else:
                     print(f"Not a vaild IP: {ip_adress.rstrip(chr(10))} , skipping this line")
                     print('--------------------------------------------------------')
-
-
-def run_nmap(nmap_options):
-    """ Calls python-nmap with flags"""
-    def run_nmap_menu():
-        print("*******************************************************")
-        print("*  1 - Get <IP> addresses from file                   *")
-        print("*  2 - Get <IP> address from command prompt           *")
-        print("*  9 - Go back to main menu                           *")
-        print("*******************************************************")
-
-    def input_ip():
-        print("Fill in IP address you want to scan:")
-        while True:
-            try:
-                ip_address_to_use = ipaddress.ip_address(input(">>> "))
-            except ValueError:
-                print("Error, not a valid IP address.")
-            else:
-                return ip_address_to_use
-
-    while True:
-        run_nmap_menu()
-        command = input(">>> ")
-        if command == "1":
-            ip_address_file = select_file()
-            if ip_address_file:
-                nmap_scan(None, nmap_options, ip_address_file, None)
-                break
-            command = "file missing"
-        if command == "2":
-            ip_address = input_ip()
-            nmap_scan(None, nmap_options, None, ip_address)
-            break
-        if command in exit_command:
-            break                 #print("Back to main menu...")
-        print(f"Invalid command: '{command}'.")
 
 
 def main_scan():
@@ -231,10 +163,18 @@ def main_scan():
     )
     # Parse the arguments
     args = parser.parse_args()
-
-    if not args.o:
-        args.o = "not save"
     args_error = False
+    if args.o:
+        try:        #Create a new output file
+            with open(args.o, 'x', encoding='utf-8'):
+                pass
+        except PermissionError:
+            print(f"File {os.path.basename(__file__)}: error: "
+                  f"permisson to path '{args.o}' denied")
+            args_error = True
+        except:     #File already exist, no new file created
+            pass
+
     if args.file:
         if not os.path.exists(args.file):
             print(f"File {os.path.basename(__file__)}: error: '{args.file}' doesn't exist")

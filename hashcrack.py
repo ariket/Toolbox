@@ -28,7 +28,6 @@ def check_hash_algorithm(hash_input):
 
 def hash_crack(wordlist, algorithm_input, hash_input):
     """Try to crack hashes"""
-    print(f"inout: {algorithm_input}, wordlinst: {wordlist}")
     algorithm = algorithm_input
     if not algorithm:   #algorithm not added to script when the scripted was called
         algorithm = check_hash_algorithm(hash_input).lower()
