@@ -8,7 +8,7 @@ import os
 import argparse
 import requests
 
-
+PASSWORD = "pw.txt"   # Default password file  md5 hash to test: bee783ee2974595487357e195ef38ca2
 HASH_ALGORITHMS ={ "sha1", "sha224", "sha256", "sha384", "sha512", "sha3_224", "sha3_256",
                 "sha3_384", "sha3_512", "shake_128", "shake_256", "blake2b", "blake2s", "md5"}
 
@@ -71,7 +71,9 @@ def main_hashcracker():
     )
     parser.add_argument(
         'file',
-        help="The path to the .txt file with passwords."
+        default=PASSWORD,
+        nargs='?',
+        help=f"The path to the .txt file with passwords (default file '{PASSWORD}')."
     )
     # Parse the arguments
     args = parser.parse_args()

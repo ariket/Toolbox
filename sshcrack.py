@@ -19,10 +19,9 @@ def ssh_check(ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     result = sock.connect_ex((ip,port))
     sock.close()
-    if result == 0:
-        #print("Port is open")   #For test purpose
+    if result == 0:    #Port open
         return True
-    print(f"Port {PORT} is closed for {ip}")
+    print(f"Port {PORT} is closed for {ip}. No scan performed.")
     return False
 
 
@@ -78,7 +77,7 @@ def main_sshcracker():
         'file',
         default=PASSWORD,
         nargs='?',
-        help=f"The path to the .txt file with passwords(default file '{PASSWORD}'). "
+        help=f"The path to the .txt file with passwords (default file '{PASSWORD}'). "
     )
     # Parse the arguments
     args = parser.parse_args()
@@ -90,8 +89,6 @@ def main_sshcracker():
     else:
         if ssh_check(args.ip):
             ssh_crack(args.file, args.user, args.ip)
-        else:
-            pass  #Exit
 
 
 if __name__ == "__main__":
