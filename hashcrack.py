@@ -23,16 +23,16 @@ def check_hash_algorithm(hash_input):
         answer = response.json()
         if answer["success"]:
             return str(answer["algorithms"])[2:-2]
-    return f"Not Found by {api_address}"    # return false if something went wrong
+    return f"Not found by {api_address}"    # return false if something went wrong
 
 
 def hash_crack(wordlist, algorithm_input, hash_input):
-    """Try to crack hashes"""
-    algorithm = algorithm_input
-    if not algorithm:   #algorithm not added to script when the scripted was called
-        algorithm = check_hash_algorithm(hash_input).lower()
-        if algorithm not in HASH_ALGORITHMS:
-            print(f"{os.path.basename(__file__)}: error: Unsupported hash algorithm: '{algorithm}'")
+    """Try to crack hash"""
+    if not algorithm_input:   #algorithm_input not added to script when the scripted was called
+        algorithm_input = check_hash_algorithm(hash_input).lower()
+        if algorithm_input not in HASH_ALGORITHMS:
+            print(f"Unsupported hash algorithm: {algorithm_input}")
+            #print(f"{os.path.basename(__file__)}: error: Unsupported hash algorithm: {algorithm_input}")
             return
     try:
         with open(wordlist, 'r', encoding='utf-8') as file:
@@ -40,7 +40,7 @@ def hash_crack(wordlist, algorithm_input, hash_input):
             for lines in file:
                 line = lines.strip().encode()
                 try:
-                    hash_object = hashlib.new(algorithm, line)
+                    hash_object = hashlib.new(algorithm_input, line)
                 except ValueError:
                     print("Unexpected error")
                     break
@@ -48,7 +48,7 @@ def hash_crack(wordlist, algorithm_input, hash_input):
                 hashed_password = hash_object.hexdigest()
                 if hashed_password == hash_input:
                     print(f'Found password: \033[96m{line.decode()}\033[0m '
-                          f'(with hash algorithm: {algorithm})')
+                          f'(with hash algorithm: {algorithm_input})')
                     break
             else:
                 print(f"No match found in the '{wordlist}' password list.")

@@ -7,27 +7,38 @@
 #import subprocess
 import os
 import ipaddress
+import pyfiglet
+from termcolor import colored
 import crypto
 import scan
 import hashcrack
 import sshcrack
 
-EXIT_COMMAND = {"9", "x", "X", "z", "Z", "q", "Q"}
+
+EXIT_COMMAND = {"9", "x", "X", "q", "Q"}
 CRYPTO_KEY = 'crypto_key.key'           # File where key is stored
 PASSWORD = "pw.txt"                     # Default password file
 
 
+def banner_toolbox():
+    """Banner function"""
+    banner = pyfiglet.figlet_format("PENTESTING\nTOOLBOX", font="big")
+    banner_lines = banner.splitlines()  # Split the banner into lines
+
+    rainbow_colors = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
+
+    # Print each line of the banner with a different rainbow color
+    for i, line in enumerate(banner_lines):
+        color = rainbow_colors[i % len(rainbow_colors)]
+        print(colored(line, color))
+    print("     \033[1;32m    By Ari Ketola ITHS \033[0m\n\n")
+
+
 def run_nmap(nmap_options):
     """ Calls python-nmap with flags"""
-    def run_nmap_menu():
-        print("*******************************************************")
-        print("*  1 - Get <IP> addresses from file                   *")
-        print("*  2 - Get <IP> address from command prompt           *")
-        print("*  9 - Go back to main menu                           *")
-        print("*******************************************************")
 
     def input_ip():
-        print("Fill in IP address you want to scan:")
+        print("Type target IP address you want to scan:")
         while True:
             try:
                 ip_address_to_use = ipaddress.ip_address(input(">>> "))
@@ -50,7 +61,7 @@ def run_nmap(nmap_options):
                 if save_scan_to_file != ip_address_file:
                     break
                 print(f"Can not use '{ip_address_file}' to save the scan, "
-                        "file is already in used to read IP data.")
+                        "file is already used to read IP data.")
             elif save_input == "2":
                 save_scan_to_file = scan.create_file()
                 break
@@ -58,6 +69,13 @@ def run_nmap(nmap_options):
                 break
             print(f"Invalid command: '{save_input}'.")
         return save_scan_to_file
+
+    def run_nmap_menu():
+        print("*******************************************************")
+        print("*  1 - Get <IP> addresses from file                   *")
+        print("*  2 - Get <IP> address from command prompt           *")
+        print("*  9 - Go back to main scan menu                      *")
+        print("*******************************************************")
 
     while True:
         run_nmap_menu()
@@ -79,18 +97,18 @@ def run_nmap(nmap_options):
 
 def main_scan():
     """ Main scan function """
-    def main_menu():
+    def main_scan_menu():
         print("********************Nmap Tool**************************")
         print("*  1 - Run Nmap with <IP> ping scan                   *")
         print("*  2 - Run Nmap with <IP> port and service scan       *")
         print("*  3 - Run Nmap with no guarantees                    *")
         print("*  7 - Read .txt file in current directory            *")
         print("*  8 - List existing .txt files in current directory  *")
-        print("*  9 - Exit                                           *")
+        print("*  9 - Back                                           *")
         print("*******************************************************")
 
     while True:
-        main_menu()
+        main_scan_menu()
         main_input = input(">>> ")
         if main_input == "1":
             run_nmap("-T4 -sP")
@@ -150,16 +168,16 @@ def main_crypto():
                 break
             print(f"File not found in {os.getcwd()}. You must specify an existing file to decrypt.")
 
-    def main_menu():
+    def main_crypto_menu():
         print("*****************Cryptography tool*********************")
         print("*  1 - Generate new key                               *")
         print("*  2 - Encrypt file                                   *")
         print("*  3 - Decrypt file                                   *")
-        print("*  9 - Exit                                           *")
+        print("*  9 - Back                                           *")
         print("*******************************************************")
 
     while True:
-        main_menu()
+        main_crypto_menu()
         main_input = input(">>> ")
         if main_input == "1":
             new_key()
@@ -176,32 +194,33 @@ def main_crypto():
 
 def main_hashcrack():
     """Main hashcrack function"""
-    def main_menu():
-        print("*****************Hash cracking tool********************")
-        print("*  1 - Crack a hash                                   *")
-        print("*  9 - Exit                                           *")
-        print("*******************************************************")
-
     def crack():
         print("Enter the hash you wish to crack.")
         hash_code = input(">>> ")
+        while not hash_code:
+            print("Please enter the hash you want to crack")
+            hash_code = input(">>> ")
         print("Enter the password/wordlist file you want to use.")
         print("Leave empty and press Enter if you wish to use default file")
         while True:
             file = input(">>> ")
-            if not file=="":
-                if not os.path.exists(file):
-                    print(f"Filepath '{file}' not found, please enter existing file "
-                        "or press enter to use default file.")
-                else:
-                    hashcrack.hash_crack(file, None, hash_code)
-                    break
-            else:
+            if file=="":
                 hashcrack.hash_crack(PASSWORD, None, hash_code)
                 break
+            if os.path.exists(file):
+                hashcrack.hash_crack(file, None, hash_code)
+                break
+            print(f"Filepath '{file}' not found, please enter existing file "
+                    "or press enter to use default file.")
+
+    def main_hash_menu():
+        print("*****************Hash cracking tool********************")
+        print("*  1 - Crack a hash                                   *")
+        print("*  9 - Back                                           *")
+        print("*******************************************************")
 
     while True:
-        main_menu()
+        main_hash_menu()
         main_input = input(">>> ")
         if main_input == "1":
             crack()
@@ -214,44 +233,46 @@ def main_hashcrack():
 
 def main_sshcrack():
     """Main SSHcrack function"""
-    def main_menu():
-        print("*****************SSH password cracking tool************")
-        print("*  1 - Crack a SSH username                           *")
-        print("*  9 - Exit                                           *")
-        print("*******************************************************")
-
     def crack():
-        print("Enter the username you wish to crack.")
-        while True:
+        print("Enter the username of the ssh user you wish to crack.")
+        user_name = input(">>> ")
+        while not user_name:
+            print("Please enter the username you wish to crack.")
             user_name = input(">>> ")
-            if not user_name:
-                print("Enter the username you wish to crack.")
-            else:
-                break
         print("Enter the IP address to the SSH server.")
         while True:
             ip_address = input(">>> ")
-            if scan.ip_address_validator(ip_address) and sshcrack.ssh_check(ip_address):
-                print("Enter the password/wordlist file you want to use.")
-                print("Leave empty and press Enter if you wish to use default file")
-                while True:
-                    file = input(">>> ")
-                    if not file=="":
-                        if not os.path.exists(file):
-                            print(f"Filepath '{file}' not found, please enter existing file "
-                                "or press enter to use default file.")
-                        else:
+            if ip_address in EXIT_COMMAND:
+                break
+            if scan.ip_address_validator(ip_address):
+                if sshcrack.ssh_check(ip_address):
+                    print("Enter the password/wordlist file you want to use.")
+                    print("Leave empty and press Enter if you wish to use default file")
+                    while True:
+                        file = input(">>> ")
+                        if file=="":
+                            sshcrack.ssh_crack(PASSWORD, user_name, ip_address)
+                            return
+                        if os.path.exists(file):
                             sshcrack.ssh_crack(file, user_name, ip_address)
                             return
-                    else:
-                        sshcrack.ssh_crack(PASSWORD, user_name, ip_address)
-                        return
+                        print(f"Filepath '{file}' not found, please enter existing file "
+                            "or press enter to use default file.")
+                else:
+                    print("Please choose an IP address with open port "
+                          f"{sshcrack.PORT} or '9' to go back.")
             else:
                 print(f"IP address '{ip_address}' is faulty, please enter "
-                        "a correct IP.")   
+                        "a correct IP or '9' to go back.")   
+
+    def main_ssh_menu():
+        print("*****************SSH password cracking tool************")
+        print("*  1 - Crack a SSH username                           *")
+        print("*  9 - Back                                           *")
+        print("*******************************************************")
 
     while True:
-        main_menu()
+        main_ssh_menu()
         main_input = input(">>> ")
         if main_input == "1":
             crack()
@@ -264,6 +285,7 @@ def main_sshcrack():
 
 def main():
     """Main menu function"""
+    banner_toolbox()
     def main_menu():
         print("******************Toolbox******************************")
         print("*  1 - Cryptography                                   *")
@@ -273,23 +295,26 @@ def main():
         print("*  9 - Exit                                           *")
         print("*******************************************************")
 
-    while True:
-        main_menu()
-        main_input = input(">>> ")
-        if main_input == "1":
-            main_crypto()
-        elif main_input == "2":
-            main_scan()
-        elif main_input == "3":
-            main_hashcrack()
-        elif main_input == "4":
-            main_sshcrack()
-        elif main_input in EXIT_COMMAND:
-            print("Toolbox exiting...")
-            break
-        else:
-            print(f"Invalid command: '{main_input}'.")
-
+    try:
+        while True:
+            main_menu()
+            main_input = input(">>> ")
+            if main_input == "1":
+                main_crypto()
+            elif main_input == "2":
+                main_scan()
+            elif main_input == "3":
+                main_hashcrack()
+            elif main_input == "4":
+                main_sshcrack()
+            elif main_input in EXIT_COMMAND:
+                print("Toolbox exiting...")
+                break
+            else:
+                print(f"Invalid command: '{main_input}'.")
+    except KeyboardInterrupt:
+        print("\n Ctrl-C pressed! \n Toolbox exiting...")
+        
 
 if __name__ == "__main__":
     main()

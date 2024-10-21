@@ -15,9 +15,8 @@ PORT = 22                               # SSH port 22
 
 def ssh_check(ip):
     """Check if port 22 is open"""
-    port = PORT
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((ip,port))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #AF_INET: IPv4 , SOCK_STREAM: TCP
+    result = sock.connect_ex((ip,PORT))
     sock.close()
     if result == 0:    #Port open
         return True
