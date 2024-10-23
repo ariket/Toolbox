@@ -1,14 +1,1 @@
-# Ignore everything
-*
 
-# But not these files...
-!.gitignore
-!README.md
-!crypto.py
-!hashcrack.py
-!scan.py
-!sshcrack.py
-!encrypt_shellcode.py
-!decrypt_shellcode.c
-!main.py
-!/files/
