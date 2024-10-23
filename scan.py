@@ -108,13 +108,17 @@ def read_file(filename):
 def run_nmap_original():
     """ Calls original nmap with flags"""
     print("Be careful, no error check of your input")
-    ip = input("Enter IP address you want to scan.\n>>> ")  #ip = "45.33.32.156"
-    flags = input("Enter Nmap flags you want to use in this scan.\n"
-                 +"For example: -A -T4 (aggresive scan).\n>>> ")
+    try:
+        ip = input("Enter IP address you want to scan.\n>>> ")  #ip = "45.33.32.156"
+        flags = input("Enter Nmap flags you want to use in this scan.\n"
+                    +"For example: -A -T4 (aggresive scan).\n>>> ")
 
-    response = os.popen(f"nmap {flags} {ip}")   #response = os.popen(f"nmap -A -T4 {ip}")
-    for line in response:
-        print(line.rstrip("\n"))
+        response = os.popen(f"nmap {flags} {ip}")   #response = os.popen(f"nmap -A -T4 {ip}")
+        for line in response:
+            print(line.rstrip("\n"))
+    except KeyboardInterrupt:
+        print("\n Ctrl-C pressed! \n Back to Nmap menu.")
+        return    
 
 def create_file():
     """Create a new file"""

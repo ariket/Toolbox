@@ -47,6 +47,9 @@ def run_nmap(nmap_options):
                 ip_address_to_use = ipaddress.ip_address(input(">>> "))
             except ValueError:
                 print("Error, not a valid IP address.")
+            except KeyboardInterrupt:
+                print("\n Ctrl-C pressed! \n Back to Nmap menu.")
+                return False    
             else:
                 return ip_address_to_use
 
@@ -54,23 +57,27 @@ def run_nmap(nmap_options):
         """Save scan to file"""
         save_scan_to_file = None
         while True:
-            print("*******************************************************")
-            print(f"1. Do want to save the scan to an existing file in {os.getcwd()}.")
-            print("2. Do you want to save the scan to a new file.")
-            print("3. Not save scan to file.")
-            save_input = input(">>> ").lower()
-            if save_input == "1":
-                save_scan_to_file = scan.select_file()
-                if save_scan_to_file != ip_address_file:
+            try:
+                print("*******************************************************")
+                print(f"1. Do want to save the scan to an existing file in {os.getcwd()}.")
+                print("2. Do you want to save the scan to a new file.")
+                print("3. Not save scan to file.")
+                save_input = input(">>> ").lower()
+                if save_input == "1":
+                    save_scan_to_file = scan.select_file()
+                    if save_scan_to_file != ip_address_file:
+                        break
+                    print(f"Can not use '{ip_address_file}' to save the scan, "
+                            "file is already used to read IP data.")
+                elif save_input == "2":
+                    save_scan_to_file = scan.create_file()
                     break
-                print(f"Can not use '{ip_address_file}' to save the scan, "
-                        "file is already used to read IP data.")
-            elif save_input == "2":
-                save_scan_to_file = scan.create_file()
-                break
-            elif save_input == "3":
-                break
-            print(f"Invalid command: '{save_input}'.")
+                elif save_input == "3":
+                    break
+                print(f"Invalid command: '{save_input}'.")
+            except KeyboardInterrupt:
+                print("\n Ctrl-C pressed! \n Scan not saved to a file.")
+                return None  
         return save_scan_to_file
 
     def run_nmap_menu():
@@ -82,20 +89,22 @@ def run_nmap(nmap_options):
 
     while True:
         run_nmap_menu()
-        command = input(">>> ")
-        if command == "1":
+        choise = input(">>> ")
+        if choise == "1":
             ip_address_file = scan.select_file()
             if ip_address_file:
                 scan.nmap_scan(save_scan(ip_address_file), nmap_options, ip_address_file, None)
                 break
-            command = "file missing"
-        if command == "2":
+            choise = "9"
+        if choise == "2":
             ip_address = input_ip()
-            scan.nmap_scan(save_scan(), nmap_options, None, ip_address)
-            break
-        if command in EXIT_COMMAND:
+            if ip_address:
+                scan.nmap_scan(save_scan(), nmap_options, None, ip_address)
+                break
+            choise = "9"
+        if choise in EXIT_COMMAND:
             break                 #print("Back to main menu...")
-        print(f"Invalid command: '{command}'.")
+        print(f"Invalid command: '{choise}'.")
 
 
 def main_scan():
