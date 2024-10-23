@@ -8,8 +8,10 @@ import os
 import argparse
 import requests
 
-PASSWORD = "pw.txt"   # Default password file  md5 hash to test: bee783ee2974595487357e195ef38ca2
-HASH_ALGORITHMS ={ "sha1", "sha224", "sha256", "sha384", "sha512", "sha3_224", "sha3_256",
+FILE_PATH = os.path.dirname(__file__) + '/files/'
+PASSWORD = FILE_PATH +  "pw.txt"            # Default password file
+#PASSWORD = "pw.txt"   # Default password file  md5 hash to test: bee783ee2974595487357e195ef38ca2
+HASH_ALGORITHMS ={"sha1", "sha224", "sha256", "sha384", "sha512", "sha3_224", "sha3_256",
                 "sha3_384", "sha3_512", "shake_128", "shake_256", "blake2b", "blake2s", "md5"}
 
 
@@ -23,7 +25,7 @@ def check_hash_algorithm(hash_input):
         answer = response.json()
         if answer["success"]:
             return str(answer["algorithms"])[2:-2]
-    return f"Not found by {api_address}"    # return false if something went wrong
+    return f"Not found by {api_address}"    # return Not found if something went wrong
 
 
 def hash_crack(wordlist, algorithm_input, hash_input):
@@ -53,7 +55,7 @@ def hash_crack(wordlist, algorithm_input, hash_input):
             else:
                 print(f"No match found in the '{wordlist}' password list.")
     except FileNotFoundError:
-        print("Unexpected error")
+        print(f"Unexpected error, file {wordlist} not found.")
 
 
 def main_hashcracker():
@@ -63,11 +65,11 @@ def main_hashcracker():
     # Define arguments for encrypting and decrypting
     parser.add_argument(
         '-alg',
-        help="The hashing algorithm"
+        help="The hashing algorithm."
     )
     parser.add_argument(
         'hash',
-        help="The hash you wish to crack"
+        help="The hash you wish to crack."
     )
     parser.add_argument(
         'file',

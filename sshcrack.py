@@ -10,7 +10,9 @@ import argparse
 import paramiko
 import scan
 
-PASSWORD = "pw.txt"                     # Default password file
+FILE_PATH = os.path.dirname(__file__) + '/files/'
+PASSWORD = FILE_PATH +  "pw.txt"            # Default password file
+#PASSWORD = "pw.txt"                     # Default password file
 PORT = 22                               # SSH port 22
 
 def ssh_check(ip):
@@ -66,7 +68,7 @@ def main_sshcracker():
     # Define arguments for encrypting and decrypting
     parser.add_argument(
         'user',
-        help="The username you wish to crack"
+        help="The username you wish to crack."
     )
     parser.add_argument(
         'ip',

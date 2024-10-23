@@ -14,10 +14,11 @@ import scan
 import hashcrack
 import sshcrack
 
-
 EXIT_COMMAND = {"9", "x", "X", "q", "Q"}
-CRYPTO_KEY = 'crypto_key.key'           # File where key is stored
-PASSWORD = "pw.txt"                     # Default password file
+CURRENT_DIRECTORY = os.path.dirname(__file__)
+FILE_PATH = os.path.dirname(__file__) + '/files/'
+CRYPTO_KEY = FILE_PATH + 'crypto_key.key'    # File where key is stored
+PASSWORD = FILE_PATH +  "/pw.txt"            # Default password file
 
 
 def banner_toolbox():
@@ -134,7 +135,7 @@ def main_crypto():
     def new_key():
         if os.path.exists(CRYPTO_KEY):
             print("Are you sure you want to generate a new key in file", end =" ")
-            print(f"'{CRYPTO_KEY}' in '{os.getcwd()}\\'? (Y/N) \nThe old key will be overwritten.")
+            print(f"'{CRYPTO_KEY}'? (Y/N) \nThe old key will be overwritten.")
             while True:
                 command = input(">>> ").lower()
                 if command == "y":
@@ -150,23 +151,25 @@ def main_crypto():
         print('Enter filename of the file you want to encrypt.')
         while True:
             file = input(">>> ")
-            if os.path.exists(file):
+            if os.path.exists(f"{file}"):
                 #subprocess.run(["python", "crypto_tool.py", "encrypt", file,
                 #                "--key", CRYPTO_KEY], check=False)
                 crypto.encrypt_file(file, CRYPTO_KEY)
                 break
-            print(f"File not found in {os.getcwd()}. You must specify an existing file to encrypt.")
+            print(f"File {file} not found. You must specify an existing file path to encrypt.")
 
     def decrypt_file():
-        print('Enter filename of the file you want to decrypt.')
+        print("Enter filename of the file you want to decrypt.")
+        print("Keep in mind the decrypted file will overwrite existing in path with "+
+              "\nsame filename but without the '.encrypted' suffix.")
         while True:
             file = input(">>> ")
-            if os.path.exists(file):
+            if os.path.exists(f"{file}"):
                 #subprocess.run(["python", "crypto_tool.py", "decrypt", file,
                 #                "--key", CRYPTO_KEY], check=False)
                 crypto.decrypt_file(file, CRYPTO_KEY)
                 break
-            print(f"File not found in {os.getcwd()}. You must specify an existing file to decrypt.")
+            print(f"File {file} not found. You must specify an existing file path to decrypt.")
 
     def main_crypto_menu():
         print("*****************Cryptography tool*********************")
@@ -210,7 +213,7 @@ def main_hashcrack():
             if os.path.exists(file):
                 hashcrack.hash_crack(file, None, hash_code)
                 break
-            print(f"Filepath '{file}' not found, please enter existing file "
+            print(f"File '{file}' not found, please enter existing file path "
                     "or press enter to use default file.")
 
     def main_hash_menu():
@@ -244,8 +247,8 @@ def main_sshcrack():
             ip_address = input(">>> ")
             if ip_address in EXIT_COMMAND:
                 break
-            if scan.ip_address_validator(ip_address):
-                if sshcrack.ssh_check(ip_address):
+            if scan.ip_address_validator(ip_address):   # ip_address_validator checks if genuine IP
+                if sshcrack.ssh_check(ip_address):      # ssh_check controls if port is open
                     print("Enter the password/wordlist file you want to use.")
                     print("Leave empty and press Enter if you wish to use default file")
                     while True:
@@ -256,7 +259,7 @@ def main_sshcrack():
                         if os.path.exists(file):
                             sshcrack.ssh_crack(file, user_name, ip_address)
                             return
-                        print(f"Filepath '{file}' not found, please enter existing file "
+                        print(f"File '{file}' not found, please enter existing file path "
                             "or press enter to use default file.")
                 else:
                     print("Please choose an IP address with open port "
@@ -286,6 +289,7 @@ def main_sshcrack():
 def main():
     """Main menu function"""
     banner_toolbox()
+
     def main_menu():
         print("******************Toolbox******************************")
         print("*  1 - Cryptography                                   *")

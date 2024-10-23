@@ -37,26 +37,35 @@ def select_file():
     file_index_name = file_list()
     if file_index_name:
         print("Select file by number:")
-        while True:
-            try:
-                selected_file = int(input(">>> "))
-            except ValueError:
-                print(f"Select file by number 1 - {len(file_index_name)}.")
-            else:
-                if selected_file <= len(file_index_name):
-                    return file_index_name[f"{selected_file}"]
-                print(f"Select file by number 1 - {len(file_index_name)}.")
+        try:
+            while True:
+                try:
+                    selected_file = int(input(">>> "))
+                except ValueError:
+                    print(f"Select file by number 1 - {len(file_index_name)}.")
+                else:
+                    if selected_file <= len(file_index_name):
+                        return file_index_name[f"{selected_file}"]
+                    print(f"Select file by number 1 - {len(file_index_name)}.")
+        except KeyboardInterrupt:
+            print("\nCtrl-C pressed, No file selected!")   
+            return False   
     return False
 
 
 def read_file(filename):
     """Read a .txt file and print to command line"""
     if os.path.exists(filename):
-        with open(filename, 'r', encoding='utf-8') as file:
-            content = file.readlines()
-            print("*******************************************************")
-            for line in content:
-                print(line.strip())
+        try:
+            with open(filename, 'r', encoding='utf-8') as file:
+                content = file.readlines()
+                print("*******************************************************")
+                for line in content:
+                    print(line.strip())
+        except UnicodeDecodeError:
+            print(f"Can't decode file {filename}.")
+        except:
+            print(f"Unexpected error with file {filename}.")                
     else:
         print(f"File doesn`t exist: {filename}")
 
@@ -75,6 +84,7 @@ def run_nmap_original():
 def create_file():
     """Create a new file"""
     print('Enter filename of the new file you want to create.')
+    print(f'If no path is used the file will be saved in {os.getcwd()}.')
     while True:
         new_file = input(">>> ")
         if new_file == "":
@@ -86,6 +96,8 @@ def create_file():
                 return new_file
             except PermissionError:
                 print(f"Permission denied to path: '{new_file}'")
+            except FileNotFoundError:
+                print(f"No such file directory: '{new_file}'")    
         else:
             print(f"{new_file} already exists.")
             print("You must specify a new non existing filename.")
@@ -121,8 +133,6 @@ def nmap_start(ip_address, save_scan_to_file, nmap_options):
 
 def nmap_scan(save_scan_to_file, nmap_options, ip_address_file, ip_address):
     """Nmap Scan"""
-    print(f"save to filen input: {save_scan_to_file}") #Test purpose
-
     print('--------------------------------------------------------')
     print('|                Nmap scan starts                      |')
     print('--------------------------------------------------------')

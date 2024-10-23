@@ -11,60 +11,63 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 
-CRYPTO_KEY = 'crypto_key.key'           # File where key is stored
+FILE_PATH = os.path.dirname(__file__) + '/files/'
+CRYPTO_KEY = FILE_PATH + 'crypto_key.key'  # File where key is stored
+#CRYPTO_KEY = 'crypto_key.key'           # File where encryption key is stored
 
 def load_key(key_file):
     """Load the encryption key from the key file"""
-    with open(key_file, 'rb') as f:
-        return f.read()
-
+    try:
+        with open(key_file, 'rb') as file:
+            try:
+                return Fernet(file.read())
+            except ValueError:
+                print("Something wrong with the encryption key.")
+                return False
+    except FileNotFoundError:
+        print("Encryption Key not found.")
+        return False
 
 def encrypt_file(file_path, key_file):
     """Function to encrypt a file"""
-    key = load_key(key_file)    # Load the encryption key
-    try:
-        fernet = Fernet(key)
-    except ValueError:
-        print(ValueError)
+    fernet = load_key(key_file)
 
-    with open(file_path, 'rb') as file: # Read the file contents
-        original_data = file.read()
-    encrypted_data = fernet.encrypt(original_data) # Encrypt the data
+    if fernet:
+        with open(file_path, 'rb') as file: # Read the file contents
+            original_data = file.read()
+        encrypted_data = fernet.encrypt(original_data) # Encrypt the data
 
-    # Write the encrypted data back to the file (or a new file)
-    encrypted_file_path = file_path + '.encrypted'
-    with open(encrypted_file_path, 'wb') as encrypted_file:
-        encrypted_file.write(encrypted_data)
+        # Write the encrypted data to a new file with extension '.encrypted'
+        encrypted_file_path = file_path + '.encrypted'
+        with open(encrypted_file_path, 'wb') as encrypted_file:
+            encrypted_file.write(encrypted_data)
 
-    print(f"File '{file_path}' encrypted with key '{key_file}' and saved as "
-          f"'\033[96m{os.path.abspath(encrypted_file_path)}\033[0m'.")
+        print(f"File '{file_path}' encrypted with key '{key_file}' and saved as "
+            f"'\033[96m{os.path.abspath(encrypted_file_path)}\033[0m'.")
 
 
 def decrypt_file(encrypted_file_path, key_file):
     """Function to decrypt an encrypted file"""
-    key = load_key(key_file)    # Load the encryption key
-    try:
-        fernet = Fernet(key)
-    except ValueError:
-        print(ValueError)
+    fernet = load_key(key_file)
 
-    with open(encrypted_file_path, 'rb') as encrypted_file: # Read the encrypted file contents
-        encrypted_data = encrypted_file.read()
+    if fernet:
+        with open(encrypted_file_path, 'rb') as encrypted_file: # Read the encrypted file contents
+            encrypted_data = encrypted_file.read()
 
-    try:                                                # Decrypt the data
-        decrypted_data = fernet.decrypt(encrypted_data)
-    except Exception as e:
-        print(f"Failed to decrypt file: {e}, perhaps wrong decryption key"
-              " or wrong file path.")
-        return
+        try:                                                # Decrypt the data
+            decrypted_data = fernet.decrypt(encrypted_data)
+        except Exception as e:
+            print(f"Failed to decrypt file: {e}, perhaps wrong decryption key"
+                " or wrong file path.")
+            return
 
-    # Write the decrypted data back to the original file (removing the .encrypted suffix)
-    original_file_path = encrypted_file_path.replace('.encrypted', '')
-    with open(original_file_path, 'wb') as decrypted_file:
-        decrypted_file.write(decrypted_data)
+        # Write the decrypted data back to the original file (removing the .encrypted suffix)
+        original_file_path = encrypted_file_path.replace('.encrypted', '')
+        with open(original_file_path, 'wb') as decrypted_file:
+            decrypted_file.write(decrypted_data)
 
-    print(f"File '{encrypted_file_path}' decrypted and restored as "
-          f"'\033[96m{os.path.abspath(original_file_path)}\033[0m'.")
+        print(f"File '{encrypted_file_path}' decrypted and restored as "
+            f"'\033[96m{os.path.abspath(original_file_path)}\033[0m'.")
 
 
 def generate_key(crypto_key_file):
@@ -97,7 +100,7 @@ def main_crypto_tool():
     parser.add_argument(
         '-key',
         default=CRYPTO_KEY,
-        help="The path to the key file(default key: crypto_key.key)."
+        help=f"The path to the key file(default key: {CRYPTO_KEY})."
     )
     group.add_argument(
         '-encrypt',
