@@ -13,12 +13,14 @@ import crypto
 import scan
 import hashcrack
 import sshcrack
+import encrypt_shellcode
 
-EXIT_COMMAND = {"9", "x", "X", "q", "Q"}
+EXIT_COMMAND = ("9", "x", "X", "q", "Q")
 CURRENT_DIRECTORY = os.path.dirname(__file__)
 FILE_PATH = os.path.dirname(__file__) + '/files/'
-CRYPTO_KEY = FILE_PATH + 'crypto_key.key'    # File where key is stored
-PASSWORD = FILE_PATH +  "/pw.txt"            # Default password file
+CRYPTO_KEY = FILE_PATH + 'crypto_key.key'   # File where key is stored
+PASSWORD = FILE_PATH +  "pw.txt"            # Default password file
+SHELLCODE = FILE_PATH +  "shellcode.raw"    # Default shellcode
 
 
 def banner_toolbox():
@@ -103,8 +105,8 @@ def main_scan():
         print("*  1 - Run Nmap with <IP> ping scan                   *")
         print("*  2 - Run Nmap with <IP> port and service scan       *")
         print("*  3 - Run Nmap with no guarantees                    *")
-        print("*  7 - Read .txt file in current directory            *")
-        print("*  8 - List existing .txt files in current directory  *")
+        print("*  7 - View a text file in current directory          *")
+        print("*  8 - List existing text files in current directory  *")
         print("*  9 - Back                                           *")
         print("*******************************************************")
 
@@ -149,27 +151,35 @@ def main_crypto():
 
     def encrypt_file():
         print('Enter filename of the file you want to encrypt.')
-        while True:
-            file = input(">>> ")
-            if os.path.exists(f"{file}"):
-                #subprocess.run(["python", "crypto_tool.py", "encrypt", file,
-                #                "--key", CRYPTO_KEY], check=False)
-                crypto.encrypt_file(file, CRYPTO_KEY)
-                break
-            print(f"File {file} not found. You must specify an existing file path to encrypt.")
+        try:
+            while True:
+                file = input(">>> ")
+                if os.path.exists(f"{file}"):
+                    #subprocess.run(["python", "crypto_tool.py", "encrypt", file,
+                    #                "--key", CRYPTO_KEY], check=False)
+                    crypto.encrypt_file(file, CRYPTO_KEY)
+                    break
+                print(f"File {file} not found. You must specify an existing file path to encrypt.")
+        except KeyboardInterrupt:
+            print("\n Ctrl-C pressed! \n Back to Cryptography menu.")
+            return    
 
     def decrypt_file():
         print("Enter filename of the file you want to decrypt.")
-        print("Keep in mind the decrypted file will overwrite existing in path with "+
-              "\nsame filename but without the '.encrypted' suffix.")
-        while True:
-            file = input(">>> ")
-            if os.path.exists(f"{file}"):
-                #subprocess.run(["python", "crypto_tool.py", "decrypt", file,
-                #                "--key", CRYPTO_KEY], check=False)
-                crypto.decrypt_file(file, CRYPTO_KEY)
-                break
-            print(f"File {file} not found. You must specify an existing file path to decrypt.")
+        print("Keep in mind the decrypted file will overwrite existing file in "+
+              "\npath with same filename but without the '.encrypted' suffix.")
+        try:
+            while True:
+                file = input(">>> ")
+                if os.path.exists(f"{file}"):
+                    #subprocess.run(["python", "crypto_tool.py", "decrypt", file,
+                    #                "--key", CRYPTO_KEY], check=False)
+                    crypto.decrypt_file(file, CRYPTO_KEY)
+                    break
+                print(f"File {file} not found. You must specify an existing file path to decrypt.")
+        except KeyboardInterrupt:
+            print("\n Ctrl-C pressed! \n Back to Cryptography menu.")
+            return       
 
     def main_crypto_menu():
         print("*****************Cryptography tool*********************")
@@ -195,26 +205,70 @@ def main_crypto():
             print(f"Invalid command: '{main_input}'.")
 
 
+def main_encrypt_shellcode():
+    """Main encryption of shellcode function"""
+    def crack():
+        print("Enter the shellcode path you want to use. Generated shellcode must be ")
+        print("in '.raw' format, you can use 'msfvenom' to generate new shellcode.")
+        print("Leave empty and press Enter if you wish to use default shellcode file.")
+        try:
+            while True:
+                file = input(">>> ")
+                if file=="":
+                    encrypt_shellcode.shellcode_encrypter(SHELLCODE)
+                    break
+                if os.path.exists(file) and file.endswith(".raw"):
+                    encrypt_shellcode.shellcode_encrypter(SHELLCODE)
+                    break
+                print("Error, please enter existing '.raw' file path "
+                    "or press enter to use default file.")
+        except KeyboardInterrupt:
+            print("\n Ctrl-C pressed! \n Back to shellcode encryption menu.")
+            return
+
+    def main_encrypt_shellcode_menu():
+        print("*************Encryption tool for shellcode*************")
+        print("*  1 - Encrypt shellcode                              *")
+        print("*  9 - Back                                           *")
+        print("*******************************************************")
+
+    while True:
+        main_encrypt_shellcode_menu()
+        main_input = input(">>> ")
+        if main_input == "1":
+            crack()
+        elif main_input in EXIT_COMMAND:
+            print("Encrypt shellcode tool exiting...")
+            break
+        else:
+            print(f"Invalid command: '{main_input}'.")
+
+
 def main_hashcrack():
     """Main hashcrack function"""
+    
     def crack():
-        print("Enter the hash you wish to crack.")
-        hash_code = input(">>> ")
-        while not hash_code:
-            print("Please enter the hash you want to crack")
+        try:
+            print("Enter the hash you wish to crack.")
             hash_code = input(">>> ")
-        print("Enter the password/wordlist file you want to use.")
-        print("Leave empty and press Enter if you wish to use default file")
-        while True:
-            file = input(">>> ")
-            if file=="":
-                hashcrack.hash_crack(PASSWORD, None, hash_code)
-                break
-            if os.path.exists(file):
-                hashcrack.hash_crack(file, None, hash_code)
-                break
-            print(f"File '{file}' not found, please enter existing file path "
+            while not hash_code:
+                print("Please enter the hash you want to crack")
+                hash_code = input(">>> ")
+            print("Enter the password/wordlist file you want to use.")
+            print("Leave empty and press Enter if you wish to use default file")
+            while True:
+                file = input(">>> ")
+                if file=="":
+                    hashcrack.hash_crack(PASSWORD, None, hash_code)
+                    break
+                if os.path.exists(file):
+                    hashcrack.hash_crack(file, None, hash_code)
+                    break
+                print(f"File '{file}' not found, please enter existing file path "
                     "or press enter to use default file.")
+        except KeyboardInterrupt:
+            print("\n Ctrl-C pressed! \n Back to Hash cracking menu.")
+            return          
 
     def main_hash_menu():
         print("*****************Hash cracking tool********************")
@@ -237,36 +291,40 @@ def main_hashcrack():
 def main_sshcrack():
     """Main SSHcrack function"""
     def crack():
-        print("Enter the username of the ssh user you wish to crack.")
-        user_name = input(">>> ")
-        while not user_name:
-            print("Please enter the username you wish to crack.")
+        try:
+            print("Enter the username of the ssh user you wish to crack.")
             user_name = input(">>> ")
-        print("Enter the IP address to the SSH server.")
-        while True:
-            ip_address = input(">>> ")
-            if ip_address in EXIT_COMMAND:
-                break
-            if scan.ip_address_validator(ip_address):   # ip_address_validator checks if genuine IP
-                if sshcrack.ssh_check(ip_address):      # ssh_check controls if port is open
-                    print("Enter the password/wordlist file you want to use.")
-                    print("Leave empty and press Enter if you wish to use default file")
-                    while True:
-                        file = input(">>> ")
-                        if file=="":
-                            sshcrack.ssh_crack(PASSWORD, user_name, ip_address)
-                            return
-                        if os.path.exists(file):
-                            sshcrack.ssh_crack(file, user_name, ip_address)
-                            return
-                        print(f"File '{file}' not found, please enter existing file path "
-                            "or press enter to use default file.")
+            while not user_name:
+                print("Please enter the username you wish to crack.")
+                user_name = input(">>> ")
+            print("Enter the IP address to the SSH server.")
+            while True:
+                ip_address = input(">>> ")
+                if ip_address in EXIT_COMMAND:
+                    break
+                if scan.ip_address_validator(ip_address):   # ip_address_validator checks if genuine IP
+                    if sshcrack.ssh_check(ip_address):      # ssh_check controls if port is open
+                        print("Enter the password/wordlist file you want to use.")
+                        print("Leave empty and press Enter if you wish to use default file.")
+                        while True:
+                            file = input(">>> ")
+                            if file=="":
+                                sshcrack.ssh_crack(PASSWORD, user_name, ip_address)
+                                return
+                            if os.path.exists(file):
+                                sshcrack.ssh_crack(file, user_name, ip_address)
+                                return
+                            print(f"File '{file}' not found, please enter existing file path "
+                                "or press enter to use default file.")
+                    else:
+                        print("Please choose an IP address with open port "
+                            f"{sshcrack.PORT} or '9' to go back.")
                 else:
-                    print("Please choose an IP address with open port "
-                          f"{sshcrack.PORT} or '9' to go back.")
-            else:
-                print(f"IP address '{ip_address}' is faulty, please enter "
-                        "a correct IP or '9' to go back.")   
+                    print(f"IP address '{ip_address}' is faulty, please enter "
+                            "a correct IP or '9' to go back.") 
+        except KeyboardInterrupt:
+            print("\n Ctrl-C pressed! \n Back to SSH cracking menu.")
+            return              
 
     def main_ssh_menu():
         print("*****************SSH password cracking tool************")
@@ -296,6 +354,7 @@ def main():
         print("*  2 - Nmap Scan                                      *")
         print("*  3 - Hashcracker                                    *")
         print("*  4 - SSHcracker                                     *")
+        print("*  5 - Encrypt shellcode                              *")
         print("*  9 - Exit                                           *")
         print("*******************************************************")
 
@@ -311,6 +370,8 @@ def main():
                 main_hashcrack()
             elif main_input == "4":
                 main_sshcrack()
+            elif main_input == "5":
+                main_encrypt_shellcode()
             elif main_input in EXIT_COMMAND:
                 print("Toolbox exiting...")
                 break
@@ -318,7 +379,7 @@ def main():
                 print(f"Invalid command: '{main_input}'.")
     except KeyboardInterrupt:
         print("\n Ctrl-C pressed! \n Toolbox exiting...")
-        
+
 
 if __name__ == "__main__":
     main()

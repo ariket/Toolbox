@@ -8,6 +8,9 @@ import os
 import ipaddress
 import nmap
 
+TEXTFILE_EXTENSIONS = ('.txt', '.md', '.asc', '.md', '.doc',
+                     '.docx', '.rtf', '.msg', '.pdf', '.odt')  # Most common text file extensions
+
 def ip_address_validator(ip):
     """ Check if legal IP address """
     try:
@@ -17,7 +20,7 @@ def ip_address_validator(ip):
     return True
 
 
-def file_list():
+def file_list2():
     """ Lists all .txt files in current directory """
     file_index_name = {}
     index = 1
@@ -29,6 +32,38 @@ def file_list():
     if len(file_index_name) == 0:
         print(f"No .txt files found in {os.getcwd()}")
         return False
+    return file_index_name
+
+
+def file_list(extensions = TEXTFILE_EXTENSIONS):
+    """ Lists all files in current directory and subdirectories """
+    file_index_name = {}     # Dictionary to hold indexed file paths
+    index = 1
+    start_dir = os.getcwd()
+
+    def recursive_search(current_dir):
+        nonlocal index  # Allows the inner function to modify the outer 'index' variable
+
+        # List all items in the current directory
+        for item in os.listdir(current_dir):
+            item_path = os.path.join(current_dir, item)
+
+            # If the item is a directory, recursively search it
+            if os.path.isdir(item_path):
+                recursive_search(item_path)
+            # If the item has an allowed extension, add it to the dictionary
+            elif any(item_path.endswith(ext) for ext in extensions):
+                relative_path = os.path.relpath(item_path, start_dir)
+                file_index_name[f"{index}"] = f"{relative_path}"
+                print(f"{index} - {relative_path}")
+                index += 1
+
+    recursive_search(start_dir)  # Start the search from the current directory
+
+    if len(file_index_name) == 0:
+        print(f"No .txt files found in {start_dir}")
+        return False
+
     return file_index_name
 
 
@@ -48,8 +83,8 @@ def select_file():
                         return file_index_name[f"{selected_file}"]
                     print(f"Select file by number 1 - {len(file_index_name)}.")
         except KeyboardInterrupt:
-            print("\nCtrl-C pressed, No file selected!")   
-            return False   
+            print("\nCtrl-C pressed, No file selected!")
+            return False
     return False
 
 
@@ -65,7 +100,7 @@ def read_file(filename):
         except UnicodeDecodeError:
             print(f"Can't decode file {filename}.")
         except:
-            print(f"Unexpected error with file {filename}.")                
+            print(f"Unexpected error with file {filename}.")
     else:
         print(f"File doesn`t exist: {filename}")
 
@@ -84,7 +119,7 @@ def run_nmap_original():
 def create_file():
     """Create a new file"""
     print('Enter filename of the new file you want to create.')
-    print(f'If no path is used the file will be saved in {os.getcwd()}.')
+    print(f'If not full path is used the file path is relative to {os.getcwd()}.')
     while True:
         new_file = input(">>> ")
         if new_file == "":
@@ -97,7 +132,7 @@ def create_file():
             except PermissionError:
                 print(f"Permission denied to path: '{new_file}'")
             except FileNotFoundError:
-                print(f"No such file directory: '{new_file}'")    
+                print(f"No such file directory: '{new_file}'")
         else:
             print(f"{new_file} already exists.")
             print("You must specify a new non existing filename.")

