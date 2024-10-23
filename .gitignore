@@ -8,8 +8,7 @@
 !hashcrack.py
 !scan.py
 !sshcrack.py
+!encrypt_shellcode.py
+!decrypt_shellcode.c
 !main.py
-!setup.py
-!*.key
-!*.txt
-!*.encrypted
+!files/
